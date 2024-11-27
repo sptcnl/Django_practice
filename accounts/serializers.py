@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+
 from accounts.models import User
 
 class SignupSerializer(serializers.Serializer):
@@ -36,6 +39,7 @@ class SignupSerializer(serializers.Serializer):
         return data
     
     def create(self, validated_data):
+        print('>>>>>>>>>>>>>>>>', self.context)
         user = User.objects.create_user(
             username = validated_data['username'],
             first_name = validated_data['first_name'],
@@ -49,3 +53,18 @@ class SignupSerializer(serializers.Serializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user:
+            # 아직 view에서 serializer로 how 넘기는거 추가 안함
+            token = Token.objects.get_or_create(user=user)
+            return token
+        raise serializers.ValidationError(
+            {"error": "계정이 유효하지 않음"}
+        )
