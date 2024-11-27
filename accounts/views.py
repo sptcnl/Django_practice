@@ -6,7 +6,7 @@ from accounts.serializers import SignupSerializer, LoginSerializer
 
 @api_view(['POST'])
 def signup(request):
-    serializer = SignupSerializer(data = request.data)
+    serializer = SignupSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
