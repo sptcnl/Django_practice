@@ -4,11 +4,14 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from accounts.serializers import SignupSerializer
+from accounts.serializers import (
+                            SignupSerializer, 
+                            ChangePasswordSerializer
+                        )
 from django.contrib.auth import (
-                                login as session_login,
-                                logout as session_logout,
-                                )
+                            login as session_login,
+                            logout as session_logout,
+                        )
 from django.middleware.csrf import get_token
 
 @api_view(['GET'])
@@ -60,3 +63,16 @@ def logout(request, how):
     elif how == 'session':
         session_logout(request)
         return Response({'message': '세션 로그아웃 성공'}, status=status.HTTP_200_OK)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response({'message': '비밀번호 변경 완료'}, status=status.HTTP_200_OK)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def edit_profile(request):
+    pass

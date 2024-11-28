@@ -1,9 +1,6 @@
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth import authenticate
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -56,17 +53,35 @@ class SignupSerializer(serializers.Serializer):
         return user
 
 
-# class LoginSerializer(serializers.Serializer):
-#     username = serializers.CharField(required=True)
-#     password = serializers.CharField(required=True, write_only=True)
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(
+                                    required=True, 
+                                    write_only=True
+                                )
+    new_password = serializers.CharField(
+                                    required=True, 
+                                    write_only=True, 
+                                    validators=[validate_password]
+                                )
 
-#     def validate(self, data):
-#         user = authenticate(**data)
-#         if user:
-#             # 아직 view에서 serializer로 how 넘기는거 추가 안함
-#             refresh = RefreshToken.for_user(user)
-#             return Response({'refresh_token': str(refresh),
-#                             'access_token': str(refresh.access_token)}, status=status.HTTP_200_OK)
-#         raise serializers.ValidationError(
-#             {"error": "계정이 유효하지 않음"}
-#         )
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError(
+                '이전 비밀번호가 유효하지 않습니다. 다시 시도해주세요.'
+            )
+        return value
+
+    def validate(self, data):
+        if data['old_password'] == data['new_password']:
+            raise serializers.ValidationError(
+                {'error': '새 비밀번호는 이전 비밀번호와 동일하지 않아야합니다.'}
+                )
+        return data
+
+    def save(self, **kwarg):
+        password = self.validated_data['new_password']
+        user = self.context['request'].user
+        user.set_password(password)
+        user.save()
+        return 
