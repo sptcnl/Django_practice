@@ -14,6 +14,9 @@ from django.contrib.auth import (
                             logout as session_logout,
                         )
 from django.middleware.csrf import get_token
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 @api_view(['GET'])
 def get_csrftoken(request):
@@ -75,8 +78,17 @@ def change_password(request):
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
-def edit_profile(request):
+def edit_profile(request, username):
+    user = User.objects.filter(username=username)
+    print(user)
+    if user != request.user:
+        return Response({'error': '본인 이외의 프로필은 수정이 불가합니다.'}, status=status.HTTP_400_BAD_REQUEST)
     serializer = ProfileSerializer(data=request.data, instance=request.user)
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user(request):
+    pass
