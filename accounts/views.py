@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.serializers import SignupSerializer
-from django.contrib.auth import login
+from django.contrib.auth import login as session_login
 
 @api_view(['POST'])
 def signup(request):
@@ -30,5 +30,5 @@ def login(request, how):
         return Response({'refresh_token': str(refresh),
                         'access_token': str(refresh.access_token)}, status=status.HTTP_200_OK)
     elif how == 'session':
-        login(request, user)
+        session_login(request, user)
         return Response({'message': '세션 로그인 성공'}, status=status.HTTP_200_OK)
