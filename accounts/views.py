@@ -30,5 +30,5 @@ def login(request, how):
         return Response({'refresh_token': str(refresh),
                         'access_token': str(refresh.access_token)}, status=status.HTTP_200_OK)
     elif how == 'session':
-        login(request, **request.data)
+        login(request, user)
         return Response({'message': '세션 로그인 성공'}, status=status.HTTP_200_OK)
