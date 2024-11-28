@@ -9,6 +9,12 @@ from django.contrib.auth import (
                                 login as session_login,
                                 logout as session_logout,
                                 )
+from django.middleware.csrf import get_token
+
+@api_view(['GET'])
+def get_csrftoken(request):
+    csrf_token = get_token(request)
+    return Response(csrf_token)
 
 @api_view(['POST'])
 def signup(request):
