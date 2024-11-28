@@ -85,3 +85,32 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         return 
+
+
+class ProfileSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        max_length=150, 
+        required=False,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+        )
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    gender = serializers.ChoiceField(choices=(
+                                ('M', 'Man'),
+                                ('W', 'Woman'),
+                                ('O', 'Other'),
+                                ),
+                                required=False)
+    profile_picture = serializers.ImageField(required=False)
+    bio = serializers.CharField(required=False)
+    birth = serializers.DateField(required=False)
+
+    def create(self, validated_data):
+
+        return User.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        for (key, value) in validated_data.items():
+            setattr(instance, key, value)
+        return instance

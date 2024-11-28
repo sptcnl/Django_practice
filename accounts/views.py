@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.serializers import (
                             SignupSerializer, 
-                            ChangePasswordSerializer
+                            ChangePasswordSerializer,
+                            ProfileSerializer,
                         )
 from django.contrib.auth import (
                             login as session_login,
@@ -75,4 +76,7 @@ def change_password(request):
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def edit_profile(request):
-    pass
+    serializer = ProfileSerializer(data=request.data, instance=request.user)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_200_OK)
