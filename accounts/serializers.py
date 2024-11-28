@@ -1,10 +1,12 @@
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
 
-from accounts.models import User
+User = get_user_model()
 
 class SignupSerializer(serializers.Serializer):
     username = serializers.CharField(
@@ -39,7 +41,6 @@ class SignupSerializer(serializers.Serializer):
         return data
     
     def create(self, validated_data):
-        print('>>>>>>>>>>>>>>>>', self.context)
         user = User.objects.create_user(
             username = validated_data['username'],
             first_name = validated_data['first_name'],
@@ -55,16 +56,17 @@ class SignupSerializer(serializers.Serializer):
         return user
 
 
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(required=True, write_only=True)
+# class LoginSerializer(serializers.Serializer):
+#     username = serializers.CharField(required=True)
+#     password = serializers.CharField(required=True, write_only=True)
 
-    def validate(self, data):
-        user = authenticate(**data)
-        if user:
-            # 아직 view에서 serializer로 how 넘기는거 추가 안함
-            token = Token.objects.get_or_create(user=user)
-            return token
-        raise serializers.ValidationError(
-            {"error": "계정이 유효하지 않음"}
-        )
+#     def validate(self, data):
+#         user = authenticate(**data)
+#         if user:
+#             # 아직 view에서 serializer로 how 넘기는거 추가 안함
+#             refresh = RefreshToken.for_user(user)
+#             return Response({'refresh_token': str(refresh),
+#                             'access_token': str(refresh.access_token)}, status=status.HTTP_200_OK)
+#         raise serializers.ValidationError(
+#             {"error": "계정이 유효하지 않음"}
+#         )
