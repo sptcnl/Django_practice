@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.serializers import (
@@ -23,12 +24,17 @@ def get_csrftoken(request):
     csrf_token = get_token(request)
     return Response(csrf_token)
 
-@api_view(['POST'])
-def signup(request):
-    serializer = SignupSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+@api_view(['GET', 'POST'])
+def signup_list(request):
+    if request.method == 'POST':
+        serializer = SignupSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    elif request.method == 'GET':
+        users = User.objects.all()
+        serializer = ProfileSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def login(request, how):
@@ -87,4 +93,12 @@ def edit_profile(request):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_user(request):
-    pass
+    user = get_object_or_404(User, pk=request.user.pk)
+    user.soft_delete()
+    return Response({'message': user.username + '님의 계정이 삭제되었습니다.'}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def user_detail(request, username):
+    user = get_object_or_404(User, username=username)
+    serializer = ProfileSerializer(user)
+    return Response(serializer.data, status=status.HTTP_200_OK)
