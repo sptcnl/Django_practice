@@ -32,7 +32,9 @@ def signup_list(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
     elif request.method == 'GET':
-        pass
+        users = User.objects.all()
+        serializer = ProfileSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def login(request, how):
@@ -96,5 +98,7 @@ def delete_user(request):
     return Response({'message': user.username + '님의 계정이 삭제되었습니다.'}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def user_detail(request):
-    pass
+def user_detail(request, username):
+    user = get_object_or_404(User, username=username)
+    serializer = ProfileSerializer(user)
+    return Response(serializer.data, status=status.HTTP_200_OK)

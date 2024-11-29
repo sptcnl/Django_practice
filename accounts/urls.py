@@ -7,6 +7,7 @@ from accounts.views import (
                         change_password,
                         edit_profile,
                         delete_user,
+                        user_detail
                     )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     path('change_password/', change_password),
     path('edit_profile/', edit_profile),
     path('delete_user/', delete_user),
+    path('<str:username>/', user_detail),
 ]
