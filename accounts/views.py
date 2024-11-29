@@ -74,7 +74,7 @@ def logout(request, how):
         session_logout(request)
         return Response({'message': '세션 로그아웃 성공'}, status=status.HTTP_200_OK)
 
-@api_view(['PATCH'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def change_password(request):
     serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
