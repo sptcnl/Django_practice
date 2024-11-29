@@ -91,7 +91,7 @@ class ProfileSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=150, 
         required=False,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        validators=[UniqueValidator(queryset=User.objects.all())],
         )
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
@@ -106,11 +106,8 @@ class ProfileSerializer(serializers.Serializer):
     bio = serializers.CharField(required=False)
     birth = serializers.DateField(required=False)
 
-    def create(self, validated_data):
-
-        return User.objects.create(**validated_data)
-
     def update(self, instance, validated_data):
         for (key, value) in validated_data.items():
             setattr(instance, key, value)
+        instance.save()
         return instance
