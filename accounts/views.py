@@ -24,12 +24,15 @@ def get_csrftoken(request):
     csrf_token = get_token(request)
     return Response(csrf_token)
 
-@api_view(['POST'])
-def signup(request):
-    serializer = SignupSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+@api_view(['GET', 'POST'])
+def signup_list(request):
+    if request.method == 'POST':
+        serializer = SignupSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    elif request.method == 'GET':
+        pass
 
 @api_view(['POST'])
 def login(request, how):
@@ -91,3 +94,7 @@ def delete_user(request):
     user = get_object_or_404(User, pk=request.user.pk)
     user.soft_delete()
     return Response({'message': user.username + '님의 계정이 삭제되었습니다.'}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def user_detail(request):
+    pass
