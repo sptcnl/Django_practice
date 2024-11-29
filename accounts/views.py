@@ -78,11 +78,7 @@ def change_password(request):
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
-def edit_profile(request, username):
-    user = User.objects.filter(username=username)
-    print(user)
-    if user != request.user:
-        return Response({'error': '본인 이외의 프로필은 수정이 불가합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+def edit_profile(request):
     serializer = ProfileSerializer(data=request.data, instance=request.user)
     serializer.is_valid(raise_exception=True)
     serializer.save()
