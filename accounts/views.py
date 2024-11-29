@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.serializers import (
@@ -87,4 +88,6 @@ def edit_profile(request):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_user(request):
-    pass
+    user = get_object_or_404(User, pk=request.user.pk)
+    user.soft_delete()
+    return Response({'message': user.username + '님의 계정이 삭제되었습니다.'}, status=status.HTTP_200_OK)
