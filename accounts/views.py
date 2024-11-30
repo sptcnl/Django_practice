@@ -47,6 +47,8 @@ def login(request, how):
     user = authenticate(username=username, password=password)
     if not user:
         return Response({'message': '아이디 또는 비밀번호가 일치하지 않습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+    if user.is_deleted == False:
+        return Response({'message': '해당 계정이 삭제 되었습니다. 복구하시려면...'}, status=status.HTTP_400_BAD_REQUEST)
     
     if how == 'token':
         refresh = RefreshToken.for_user(user)
